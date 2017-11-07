@@ -19,7 +19,7 @@
 SSG* pSSG;
 
 float fBrownianWalk = 0.0f;
-int iSamplesAdded = 0;
+uint64_t iSamplesAdded = 0;
 
 void addRandomSample() {
   fBrownianWalk += ((rand() & 8191)-4096) * 0.002f;
@@ -33,19 +33,21 @@ int main(int argc, char* argv[]) {
   int i,j,k;
   char title[255];
 
-  pSSG = SSG_New();
+  pSSG = SSG_New("test", 1);
 
-  printf("randomizing signal...\n");
-  for (i=0; i<100000; i++) {
-    addRandomSample();
+  iSamplesAdded = SSG_GetLength(pSSG);
+
+  printf("getlength returned %ld\n", iSamplesAdded);
+  if (iSamplesAdded==0) {
+    printf("First time running. Generate a big chunk of randomness...\n");
+    for (i = 0; i < 100000000; i++) {
+      addRandomSample();
+    }
   }
-
   unsigned int graph_width = 2048; //192;
   unsigned int graph_height = graph_width / 3;
   double dSamplesPerPixel = 200000.0 / (double)graph_width;
-  //float fUnitsPerPixel = 300.0f / (float)graph_height;
-  float fRange = 50.0f;
-
+  float fRange = 300.0f;
 
 
   SDL_Window* window = NULL;
@@ -207,6 +209,7 @@ int main(int argc, char* argv[]) {
     usleep(1000);
   }
 
+  SSG_Teardown(pSSG);
 
   return 0;
 ERRET:

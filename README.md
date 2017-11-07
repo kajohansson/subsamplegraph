@@ -2,10 +2,8 @@ About
 ==============
 Render a collection of samples as a waveform with proper subsampling and interpolation of the data
 
- * Handles reasonably large datasets without slowdown.
- * In-mem for now, and relies on paging when running out of main memory.
- * 
-
+ * Handles large datasets without slowdown.
+ * Uses file backing for all memory buffers, mmap:ed into memory.
 
 Todo:s
 ======

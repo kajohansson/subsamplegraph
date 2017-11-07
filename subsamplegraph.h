@@ -32,9 +32,11 @@ typedef struct SSG_private SSG;
 /**
  * SSG_New
  * Create a new graph object capable of receiving samples and rendering a graph as a bitmap.
+ * @param pcBasefilename Fully qualified base filename including path for long term storage
+ * @param bWritable Map files for writing
  * @return SSG object
  */
-SSG *SSG_New();
+SSG *SSG_New(char *pcBasefilename, int bWritable);
 
 /**
  * SSG_Teardown
@@ -57,7 +59,7 @@ void SSG_AddValue(SSG *pThis, float fValue);
  * @param pThis
  * @return
  */
-int SSG_GetLength(SSG *pThis);
+uint64_t SSG_GetLength(SSG *pThis);
 
 /**
  * SSG_Render
