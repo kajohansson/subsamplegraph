@@ -53,7 +53,7 @@ int mapfiletomemblock(char *pFilename, Buffer* pOutMemblock, int bWritable) {
   pOutMemblock->pFilenamecopy = malloc(strlen(pFilename)+1);
   strcpy(pOutMemblock->pFilenamecopy, pFilename);
 #endif
-  int fd = open(pFilename,O_RDWR | O_APPEND | O_CREAT, S_IRWXU | S_IRGRP | S_IROTH);
+  int fd = open(pFilename,O_RDWR | O_APPEND | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 
   uint64_t iUsed = lseek(fd, 0, SEEK_END) / sizeof(float); // Number of elements in file
 
