@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
   printf("Detected screen resolution: %dx%d\n", dm.w,dm.h);
   dm.w -= 100; // Allow for some breathing room if scaling down
   dm.h -= 100;
-  int iScale = dm.w / graph_width;
+  double iScale = (double)dm.w / graph_width;
   window_width  = graph_width  * iScale;
   window_height = graph_height * iScale;
   //while (window_width > dm.w || window_height > dm.h) {
