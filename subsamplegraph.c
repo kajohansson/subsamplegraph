@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <malloc.h>
+#include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
 #include <errno.h>
@@ -135,6 +135,7 @@ int releasememblock(Buffer *pB) {
   pB->pfBuffer = NULL;
   pB->iAllocated = 0;
   pB->iWritePointer = 0;
+  return 0;
 }
 
 #define MAX_MIP_LOD 24
