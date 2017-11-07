@@ -46,9 +46,6 @@ int main(int argc, char* argv[]) {
   //float fUnitsPerPixel = 300.0f / (float)graph_height;
   float fRange = 50.0f;
 
-  uint8_t* pGraphBuf = calloc(graph_width*graph_height, 1);
-  unsigned int window_width = graph_width * 8;
-  unsigned int window_height = graph_height * 8;
 
 
   SDL_Window* window = NULL;
@@ -73,16 +70,21 @@ int main(int argc, char* argv[]) {
   printf("Detected screen resolution: %dx%d\n", dm.w,dm.h);
   dm.w -= 100; // Allow for some breathing room if scaling down
   dm.h -= 100;
+
+  if (graph_width > dm.w) {
+    graph_height = graph_height * dm.w/graph_width;
+    graph_width = (unsigned int)dm.w;
+  }
+  if (graph_height > dm.h) {
+    graph_width = graph_width * dm.h/graph_height;
+    graph_height = (unsigned int)dm.h;
+  }
   int iScale = dm.w / graph_width;
-  window_width  = graph_width  * iScale;
-  window_height = graph_height * iScale;
-  //while (window_width > dm.w || window_height > dm.h) {
-  //  window_width /= 2;
-  //  window_height /= 2;
-  //}
-  //int iScale = window_width / graph_width;
+  unsigned int window_width  = graph_width  * iScale;
+  unsigned int window_height = graph_height * iScale;
 
   printf("Using window size: %dx%d\n", window_width,window_height);
+  printf("Using graph size: %dx%d\n", graph_width,graph_height);
 
   window = SDL_CreateWindow(
           WINDOW_TITLE,
@@ -94,6 +96,7 @@ int main(int argc, char* argv[]) {
   int x,y;
   SDL_GetWindowPosition(window, &x, &y);
 
+  uint8_t* pGraphBuf = calloc(graph_width*graph_height, 1);
   uint32_t *framebuffer = calloc(window_width*window_height*4, 1);
   for (i=0; i<window_width*window_height; i++) framebuffer[i] = 0xff000080;
 
