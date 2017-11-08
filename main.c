@@ -198,7 +198,6 @@ int main(int argc, char* argv[]) {
           autofollow = 0;
           dSamplePosAtMouseDown = dSamplePosAtRightmostPixel - dSamplesPerPixel * (window_width - iMouseX) / iScale;
           fValueAtMouseDown = fValueAtBottommostPixel - fValuesPerPixel * (window_height - iMouseY) / iScale;
-          printf("Value %f\n", fValueAtMouseDown);
           break;
         case SDL_MOUSEBUTTONUP:
           if (clickdragging) {
