@@ -113,6 +113,7 @@ int main(int argc, char* argv[]) {
 
   int iMouseX = 0;
   int iMouseY = 0;
+  int iMouseWY = 0;
   int iMouseDownX = 0;
   int iMouseDownY = 0;
   double dSamplePosAtRightmostPixel = iSamplesAdded;
@@ -160,15 +161,28 @@ int main(int argc, char* argv[]) {
         case SDL_KEYDOWN:
           if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) running = 0;
           if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {pause=1-pause;}
-          if (event.key.keysym.scancode == SDL_SCANCODE_A) {autofollow=1;}
+          if (event.key.keysym.scancode == SDL_SCANCODE_A) {autofollow=1-autofollow;}
           break;
+        case SDL_MOUSEWHEEL:
+        {
+          iMouseWY = event.wheel.y;
+          if (iMouseWY) {
+            if (SDL_GetModState() & KMOD_ALT) {
+              fRange *= pow(2.0, iMouseWY * 0.05);
+            } else {
+              double dSamplePosAtMouse = dSamplePosAtRightmostPixel - dSamplesPerPixel * (window_width - iMouseX) / iScale;
+              dSamplesPerPixel *= pow(2.0, iMouseWY * 0.05);
+              dSamplePosAtRightmostPixel = dSamplePosAtMouse + dSamplesPerPixel * (window_width - iMouseX) / iScale;
+              autofollow = 0;
+            }
+          }
+          break;
+        }
         case SDL_MOUSEMOTION:
         {
           iMouseX = event.motion.x;
           iMouseY = event.motion.y;
           if (clickdragging) {
-            int dy = iMouseY - iMouseDownY;
-            dSamplesPerPixel = dSamplesPerPixelAtMouseDown * pow(2.0, dy * 0.02);
             dSamplePosAtRightmostPixel = dSamplePosAtMouseDown + dSamplesPerPixel * (window_width - iMouseX) / iScale;
             update = 1;
           }
@@ -177,6 +191,7 @@ int main(int argc, char* argv[]) {
         }
         case SDL_MOUSEBUTTONDOWN:
           clickdragging = 1;
+          autofollow = 0;
           iMouseDownX = event.motion.x;
           iMouseDownY = event.motion.y;
           dSamplePosAtMouseDown = dSamplePosAtRightmostPixel - dSamplesPerPixel * (window_width - iMouseX) / iScale;
@@ -185,7 +200,6 @@ int main(int argc, char* argv[]) {
         case SDL_MOUSEBUTTONUP:
           if (clickdragging) {
             clickdragging = 0;
-            autofollow = 0;
             waitforautofollow = (dSamplePosAtRightmostPixel > iSamplesAdded) ? 1 : 0;
           }
           break;
