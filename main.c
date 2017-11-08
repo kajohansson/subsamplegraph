@@ -46,7 +46,9 @@ int main(int argc, char* argv[]) {
   unsigned int graph_width = 2048; //192;
   unsigned int graph_height = graph_width / 3;
   double dSamplesPerPixel = 200000.0 / (double)graph_width;
-  float fRange = 300.0f;
+  float fValueAtTopmostPixel = 300.0f;
+  float fValueAtBottommostPixel = -fValueAtTopmostPixel;
+  float fValuesPerPixel = (fValueAtBottommostPixel - fValueAtTopmostPixel) / (float)graph_height;
 
 
   SDL_Window* window = NULL;
@@ -109,20 +111,18 @@ int main(int argc, char* argv[]) {
   int update = 1;
   int pause = 0;
   int clickdragging = 0;
-  int debugprint = 0;
 
   int iMouseX = 0;
   int iMouseY = 0;
   int iMouseWY = 0;
-  int iMouseDownX = 0;
-  int iMouseDownY = 0;
   double dSamplePosAtRightmostPixel = iSamplesAdded;
 
   int waitforautofollow = 0;
   int autofollow = 1;
 
   double dSamplePosAtMouseDown;
-  double dSamplesPerPixelAtMouseDown;
+  double fValueAtMouseDown;
+
 
   while (running) {
 
@@ -132,7 +132,7 @@ int main(int argc, char* argv[]) {
       //dSamplesPerPixel = (double)iSamplesAdded / (double)graph_width;
 
       // Render graph to 8-bit buffer
-      SSG_Render(pSSG, dSamplePosAtRightmostPixel-graph_width*dSamplesPerPixel, dSamplePosAtRightmostPixel, fRange, -fRange, pGraphBuf, graph_width, graph_height);
+      SSG_Render(pSSG, dSamplePosAtRightmostPixel-graph_width*dSamplesPerPixel, dSamplePosAtRightmostPixel, fValueAtBottommostPixel-graph_height*fValuesPerPixel, fValueAtBottommostPixel, pGraphBuf, graph_width, graph_height);
 
       // point sample upscale to window size (to make visible pixels) and make it ARGB.
       for (x=0; x<window_width; x++) {
@@ -168,10 +168,12 @@ int main(int argc, char* argv[]) {
           iMouseWY = event.wheel.y;
           if (iMouseWY) {
             if (SDL_GetModState() & KMOD_ALT) {
-              fRange *= pow(2.0, iMouseWY * 0.05);
+              float fValueAtMouse = fValueAtBottommostPixel - fValuesPerPixel * (window_height - iMouseY) / iScale;
+              fValuesPerPixel *= pow(2.0, -iMouseWY * 0.05);
+              fValueAtBottommostPixel = fValueAtMouse + fValuesPerPixel * (window_height - iMouseY) / iScale;
             } else {
               double dSamplePosAtMouse = dSamplePosAtRightmostPixel - dSamplesPerPixel * (window_width - iMouseX) / iScale;
-              dSamplesPerPixel *= pow(2.0, iMouseWY * 0.05);
+              dSamplesPerPixel *= pow(2.0, -iMouseWY * 0.05);
               dSamplePosAtRightmostPixel = dSamplePosAtMouse + dSamplesPerPixel * (window_width - iMouseX) / iScale;
               autofollow = 0;
             }
@@ -184,6 +186,8 @@ int main(int argc, char* argv[]) {
           iMouseY = event.motion.y;
           if (clickdragging) {
             dSamplePosAtRightmostPixel = dSamplePosAtMouseDown + dSamplesPerPixel * (window_width - iMouseX) / iScale;
+            fValueAtBottommostPixel = fValueAtMouseDown + fValuesPerPixel * (window_height - iMouseY) / iScale;
+
             update = 1;
           }
 
@@ -192,10 +196,9 @@ int main(int argc, char* argv[]) {
         case SDL_MOUSEBUTTONDOWN:
           clickdragging = 1;
           autofollow = 0;
-          iMouseDownX = event.motion.x;
-          iMouseDownY = event.motion.y;
           dSamplePosAtMouseDown = dSamplePosAtRightmostPixel - dSamplesPerPixel * (window_width - iMouseX) / iScale;
-          dSamplesPerPixelAtMouseDown = dSamplesPerPixel;
+          fValueAtMouseDown = fValueAtBottommostPixel - fValuesPerPixel * (window_height - iMouseY) / iScale;
+          printf("Value %f\n", fValueAtMouseDown);
           break;
         case SDL_MOUSEBUTTONUP:
           if (clickdragging) {
